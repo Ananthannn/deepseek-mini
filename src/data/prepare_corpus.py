@@ -3,60 +3,47 @@ import re
 
 # save the data that you wanna train the model to the data/raw/raw_data.txt
 # cleans the data and saves the cleaned version to data/processed/cleaned_data.txt
+class data_processing:
 
-def read_data(path: str) -> str:
+  def __init__(self , raw_data_path , to_save_processed_path):
+    self.raw_data_path = raw_data_path
+    self.to_save_processed_path = to_save_processed_path
 
-    # for reading the raw data
-    with open(path , "r" , encoding="utf-8") as f:
-        data = f.read()
+  def read_data(self) -> str:
 
-    return data
+      # for reading the raw data
+      with open(self.raw_data_path , "r" , encoding="utf-8") as f:
+          data = f.read()
 
-def clean_data( text:str ) -> list:
+      return data
 
-    # Replace newlines with spaces
-    text = text.replace("\n", " ")
+  def clean_data(self) -> list:
 
-    # Collapse multiple spaces into a single space
-    text = " ".join(text.split())
+      text = self.read_data()
+      # Replace newlines with spaces
+      text = text.replace("\n", " ")
 
-    # Strip leading whitespace
-    text = text.strip()
+      # Collapse multiple spaces into a single space
+      text = " ".join(text.split())
 
-    # Split into sentences or chunks
-    lines = re.split(r'\.\s+', text)
-    
-    cleaned_lines = []
-    for line in lines:
-        line = line.strip()
-        if len(line.split()) >= 5: 
-            cleaned_lines.append(line)
+      # Strip leading whitespace
+      text = text.strip()
 
-    return cleaned_lines
+      # Split into sentences or chunks
+      lines = re.split(r'\.\s+', text)
+      
+      cleaned_lines = []
+      for line in lines:
+          line = line.strip()
+          if len(line.split()) >= 5: 
+              cleaned_lines.append(line)
 
-def save_cleaned_data(lines: list, path: str) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+      return cleaned_lines
+
+  def save_cleaned_data(self) -> None:
+    lines = self.clean_data()
+    path = self.to_save_processed_path
+    with open(os.path.join(path , "processed.txt"), "w", encoding="utf-8") as f:
         for line in lines:
             f.write(line + "\n")
     return None
-
-def main():
-    #finding the current path
-    curr_path = os.path.dirname(os.path.abspath(__file__))
-
-    #finding the root directory
-    root_dir = os.path.abspath(os.path.join(curr_path , ".." , ".."))
-
-    #finding the path of the raw text
-    raw_data_path = os.path.join(root_dir , "data" , "raw" , "raw_data.txt")
-
-    #finding the path to save the processed data
-    processed_data_path =  os.path.join(root_dir , "data" , "processed" , "cleaned_data.txt")
-    
-    #saving the cleaned data at that path
-    save_cleaned_data(clean_data(read_data(raw_data_path)),processed_data_path)
-
-
-if __name__ == "__main__":
-    main()

@@ -2,35 +2,31 @@ import os
 from tokenizers import Tokenizer, models, trainers
 
 # Train a BPE tokenizer for autoregressive (GPT/DeepSeek-style) training.
-def BPE_tokenize(clean_file_path: str, vocab_path: str, vocab_size: int = 20000):
+class Token_maker:
 
-    # Initialize tokenizer with BPE model and set unknown token
-    tokenizer = Tokenizer(models.BPE(unk_token="[UNK]"))
+  def __init__(self , clean_file_path , vocab_path):
+    self.clean_file_path = clean_file_path
+    self.vocab_path = vocab_path
+    self.vocab_size = 20000
+    self.BPE_tokenize()
 
-    # Special tokens needed for autoregressive LLMs:
-    # [PAD] - padding
-    # [BOS] - beginning of sequence
-    # [EOS] - end of sequence
-    # [UNK] - fallback for unknown chars
-    trainer = trainers.BpeTrainer(
-        vocab_size=vocab_size,
-        special_tokens=["[PAD]", "[BOS]", "[EOS]", "[UNK]"]
-    )
+  def BPE_tokenize(self):
 
-    # Train tokenizer on cleaned dataset
-    tokenizer.train([clean_file_path], trainer)
+      # Initialize tokenizer with BPE model and set unknown token
+      tokenizer = Tokenizer(models.BPE(unk_token="[UNK]"))
 
-    # Save tokenizer JSON
-    tokenizer.save(vocab_path)
+      # Special tokens needed for autoregressive LLMs:
+      # [PAD] - padding
+      # [BOS] - beginning of sequence
+      # [EOS] - end of sequence
+      # [UNK] - fallback for unknown chars
+      trainer = trainers.BpeTrainer(
+          vocab_size=self.vocab_size,
+          special_tokens=["[PAD]", "[BOS]", "[EOS]", "[UNK]"]
+      )
 
-def main():
-    curr_path = os.path.dirname(os.path.abspath(__file__))
-    root_dir = os.path.abspath(os.path.join(curr_path, "..", ".."))
+      # Train tokenizer on cleaned dataset
+      tokenizer.train([self.clean_file_path], trainer)
 
-    clean_file_path = os.path.join(root_dir, "data", "processed", "cleaned_data.txt")
-    vocab_path = os.path.join(root_dir, "data", "vocab", "bpe_tokenizer.json")
-
-    BPE_tokenize(clean_file_path, vocab_path)
-
-if __name__ == "__main__":
-    main()
+      # Save tokenizer JSON
+      tokenizer.save(self.vocab_path)
